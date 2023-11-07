@@ -1,0 +1,48 @@
+version: '3.3'
+services:
+  web:
+    image: tubes-1:latest
+    networks:
+      mynetwork:
+        ipv4_address: 172.21.0.2
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    volumes:
+      - ../travelution-monolith:/var/www/html
+      - ../travelution-monolith/php.ini:/usr/local/etc/php/conf.d/php.ini
+    ports:
+      - 80:80
+  database:
+    image: mysql
+    networks:
+      mynetwork:
+        ipv4_address: 172.21.0.3
+    volumes:
+      - ../travelution-monolith/database:/var/lib/mysql
+      - ../travelution-monolith/travelution.sql:/docker-entrypoint-initdb.d/travelution.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: travelution_database
+    ports:
+      - 3306:3306
+  node-app:
+    image: node-app:latest
+    volumes:
+      - ../travelution-rest/src:/usr/src/app
+    build: 
+      context: .
+      dockerfile: Dockerfile.rest
+    ports:
+      - 5000:3000
+    networks:
+      mynetwork:
+        ipv4_address: 172.21.0.4
+networks:
+  mynetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/16
+          gateway: 172.21.0.1
