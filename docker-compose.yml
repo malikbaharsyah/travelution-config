@@ -33,8 +33,9 @@ services:
     volumes:
       - ../travelution-rest/src:/usr/src/app
       - /usr/src/app/node_modules
-    build: 
-      dockerfile: Dockerfile.rest
+    build:
+      context: ..
+      dockerfile: travelution-config/Dockerfile.rest
     ports:
       - 5000:3000
     networks:
