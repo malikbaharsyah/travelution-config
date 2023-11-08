@@ -1,12 +1,12 @@
 version: '3.3'
 services:
   web:
-    image: tubes-1:latest
+    image: monolith:latest
+    container_name: monolith
     networks:
       mynetwork:
         ipv4_address: 172.21.0.2
     build:
-      context: .
       dockerfile: Dockerfile.php
     volumes:
       - ../travelution-monolith:/var/www/html
@@ -15,6 +15,7 @@ services:
       - 80:80
   database:
     image: mysql
+    container_name: mysql
     networks:
       mynetwork:
         ipv4_address: 172.21.0.3
@@ -26,18 +27,33 @@ services:
       MYSQL_DATABASE: travelution_database
     ports:
       - 3306:3306
-  node-app:
-    image: node-app:latest
+  rest-app:
+    image: rest-app:latest
+    container_name: react-app
     volumes:
       - ../travelution-rest/src:/usr/src/app
+      - /usr/src/app/node_modules
     build: 
-      context: .
       dockerfile: Dockerfile.rest
     ports:
       - 5000:3000
     networks:
       mynetwork:
         ipv4_address: 172.21.0.4
+  spa-app:
+    image: spa-app:latest
+    container_name: spa-app
+    volumes:
+      - ../travelution-subscription-app/src/vite-project:/usr/src/app
+      - /usr/src/app/node_modules
+    build:
+      context: ..
+      dockerfile: travelution-config/Dockerfile.spa
+    ports:
+      - 3000:5001
+    networks:
+      mynetwork:
+        ipv4_address: 172.21.0.5
 networks:
   mynetwork:
     driver: bridge
