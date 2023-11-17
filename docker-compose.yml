@@ -29,7 +29,7 @@ services:
       - 3306:3306
   rest-app:
     image: rest-app:latest
-    container_name: react-app
+    container_name: rest-app
     volumes:
       - ../travelution-rest/src:/usr/src/app
       - /usr/src/app/node_modules
@@ -37,7 +37,7 @@ services:
       context: ..
       dockerfile: travelution-config/Dockerfile.rest
     ports:
-      - 5000:3000
+      - 8000:3000
     networks:
       mynetwork:
         ipv4_address: 172.21.0.4
@@ -51,10 +51,24 @@ services:
       context: ..
       dockerfile: travelution-config/Dockerfile.spa
     ports:
-      - 3000:5001
+      - 5000:5001
     networks:
       mynetwork:
         ipv4_address: 172.21.0.5
+  restdb:
+    image: mysql:latest
+    container_name: mysql-rest
+    restart: always
+    volumes:
+      - ../travelution-rest/travelution-rest.sql:/docker-entrypoint-initdb.d/travelution-rest.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: travelution_rest
+    ports:
+      - 5432:3306
+    networks:
+      mynetwork:
+        ipv4_address: 172.21.0.6
 networks:
   mynetwork:
     driver: bridge
@@ -63,3 +77,5 @@ networks:
       config:
         - subnet: 172.21.0.0/16
           gateway: 172.21.0.1
+  demo:
+    external: true
